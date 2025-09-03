@@ -17,7 +17,7 @@ import (
 
 func (c *Config) Synthesis() {
 	begin := time.Now().Unix()
-	logrus.Println("查找缓存目录下可转换的文件...")
+	logrus.Printf("查找缓存目录(%s)下可转换的文件...", c.CachePath)
 	// 查找m4s文件，并转换为mp4和mp3
 	if err := filepath.WalkDir(c.CachePath, c.FindM4sFiles); err != nil {
 		MessageBox(fmt.Sprintf("查找并转换 m4s 文件异常：%v", err))

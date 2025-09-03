@@ -113,6 +113,7 @@ func (c *Config) FindM4sFiles(src string, info os.DirEntry, err error) error {
 	return nil
 }
 
+//获取指定目录 cachePath 下所有不包含 'output' 字符串的子目录列表（不包括自身），并返回这些子目录的路径。
 func GetCacheDir(cachePath string) ([]string, error) {
 	var dirs []string
 	err := filepath.Walk(cachePath, func(path string, info os.FileInfo, err error) error {

@@ -5,6 +5,7 @@ var (
 	XmlSuffix         = ".xml"
 	M4sSuffix         = ".m4s"
 	Mp4Suffix         = ".mp4"
+	Mp3Suffix         = ".mp3"
 	VideoInfoSuffix   = ".videoInfo"
 	VideoInfoJson     = "videoInfo.json"
 	AudioSuffix       = "-audio.mp3"
