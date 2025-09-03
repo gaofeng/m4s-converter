@@ -3,17 +3,19 @@ package common
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Masterminds/semver"
-	"github.com/fatih/color"
-	"github.com/google/go-github/v65/github"
-	"github.com/integrii/flaggy"
-	"github.com/sirupsen/logrus"
 	"io"
 	"m4s-converter/internal"
 	"net/http"
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
+
+	"github.com/Masterminds/semver"
+	"github.com/fatih/color"
+	"github.com/google/go-github/v65/github"
+	"github.com/integrii/flaggy"
+	"github.com/sirupsen/logrus"
 )
 
 func (c *Config) flag() {
@@ -43,17 +45,20 @@ func (c *Config) flag() {
 			c.SelectFFMpegPath()
 		}
 		logrus.Warnln("使用FFMpeg进行音视频合成")
-		return
-	}
-	if c.GPACPath != "" {
+	} else if path, found := findFFmpegInPathEnv(); found {
+		logrus.Warnln("找到FFMpeg文件:", path)
+		c.FFMpegPath = path
+		logrus.Warnln("使用FFMpeg进行音视频合成")
+	} else if c.GPACPath != "" {
 		if c.GPACPath == "select" {
 			c.SelectGPACPath()
 			logrus.Warnln("使用MP4Box进行音视频合成")
 		}
-		return
+	} else {
+		c.GPACPath = internal.GetMP4Box()
+		logrus.Warnln("使用MP4Box进行音视频合成")
 	}
-	c.GPACPath = internal.GetMP4Box()
-	logrus.Warnln("使用MP4Box进行音视频合成")
+
 	if c.CachePath == "" {
 		c.CachePath = filepath.Join(u.HomeDir, "Videos", "bilibili")
 	}
@@ -63,6 +68,21 @@ func (c *Config) InitConfig() {
 	go c.PanicHandler()
 	diffVersion()
 	c.flag()
+}
+
+// Searches for "ffmpeg.exe" in the system's PATH environment variable.
+// It returns the full path to the first occurrence of "ffmpeg.exe" found 
+// and a boolean indicating whether it was found.
+func findFFmpegInPathEnv() (string, bool) {
+	pathEnv := os.Getenv("PATH")
+	paths := strings.Split(pathEnv, ";")
+	for _, dir := range paths {
+		ffmpegPath := filepath.Join(dir, "ffmpeg.exe")
+		if _, err := os.Stat(ffmpegPath); err == nil {
+			return ffmpegPath, true
+		}
+	}
+	return "", false
 }
 
 func diffVersion() {
